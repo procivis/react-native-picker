@@ -13,3 +13,12 @@
 
 @end
 
+@interface Picker : UIPickerView
+
+@property (nonatomic, copy) NSArray<NSString *> *items;
+@property (nonatomic, copy) NSString *selectedValue;
+
+- (void)setTextColorProp:(NSString *)hexColor;
+
+@end
+

@@ -1,5 +1,6 @@
 package com.henninghall.date_picker.ui;
 
+import android.util.Log;
 import android.view.View;
 
 import com.henninghall.date_picker.models.Variant;
@@ -17,6 +18,7 @@ import com.henninghall.date_picker.wheels.DayWheel;
 import com.henninghall.date_picker.wheels.HourWheel;
 import com.henninghall.date_picker.wheels.MinutesWheel;
 import com.henninghall.date_picker.wheels.MonthWheel;
+import com.henninghall.date_picker.wheels.StringWheel;
 import com.henninghall.date_picker.wheels.Wheel;
 import com.henninghall.date_picker.wheels.YearWheel;
 
@@ -39,6 +41,7 @@ public class Wheels {
     private DateWheel dateWheel;
     private MonthWheel monthWheel;
     private YearWheel yearWheel;
+    private StringWheel stringWheel;
     private View rootView;
     private final PickerWrapper pickerWrapper;
 
@@ -49,6 +52,7 @@ public class Wheels {
         this.rootView = rootView;
         pickerWrapper = new PickerWrapper(rootView);
 
+        stringWheel = new StringWheel(getPickerWithId(R.id.string), state);
         yearWheel = new YearWheel(getPickerWithId(R.id.year), state);
         monthWheel = new MonthWheel(getPickerWithId(R.id.month), state);
         dateWheel = new DateWheel(getPickerWithId(R.id.date), state);
@@ -67,7 +71,9 @@ public class Wheels {
     }
 
     void applyOnAll(WheelFunction function) {
-        for (Wheel wheel: getAll()) function.apply(wheel);
+        for(Wheel wheel: getAll()) {
+            function.apply(wheel);
+        }
     }
 
     void applyOnVisible(WheelFunction function) {
@@ -189,7 +195,7 @@ public class Wheels {
     }
 
     private List<Wheel> getAll(){
-        return new ArrayList<>(Arrays.asList(yearWheel, monthWheel, dateWheel, dayWheel, hourWheel, minutesWheel, ampmWheel));
+        return new ArrayList<>(Arrays.asList(stringWheel, yearWheel, monthWheel, dateWheel, dayWheel, hourWheel, minutesWheel, ampmWheel));
     }
 
     private String getDateFormatPattern(){
@@ -218,6 +224,7 @@ public class Wheels {
             put(WheelType.HOUR, hourWheel);
             put(WheelType.MINUTE, minutesWheel);
             put(WheelType.AM_PM, ampmWheel);
+            put(WheelType.STRING, stringWheel);
         }};
     }
 

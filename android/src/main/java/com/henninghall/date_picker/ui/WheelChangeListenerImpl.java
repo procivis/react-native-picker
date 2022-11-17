@@ -4,6 +4,7 @@ import android.view.View;
 
 import com.henninghall.date_picker.Emitter;
 import com.henninghall.date_picker.State;
+import com.henninghall.date_picker.wheels.StringWheel;
 import com.henninghall.date_picker.wheels.Wheel;
 
 import java.text.ParseException;
@@ -35,6 +36,10 @@ public class WheelChangeListenerImpl implements WheelChangeListener {
     @Override
     public void onChange(Wheel picker) {
         if(wheels.hasSpinningWheel()) return;
+
+        if(picker instanceof StringWheel) {
+            uiManager.updateSelectedValue(picker.getValue());
+        }
 
         if(!dateExists()){
             Calendar closestExistingDate = getClosestExistingDateInPast();

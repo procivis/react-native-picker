@@ -8,6 +8,7 @@ import com.henninghall.date_picker.models.Mode;
 import com.henninghall.date_picker.models.Variant;
 import com.henninghall.date_picker.models.WheelType;
 
+import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +44,10 @@ public class DerivedData {
                 visibleWheels.add(WheelType.DATE);
                 break;
             }
+            case list: {
+                visibleWheels.add(WheelType.STRING);
+                break;
+            }
         }
         if((mode == Mode.time || mode == Mode.datetime) && state.derived.usesAmPm()){
             visibleWheels.add(WheelType.AM_PM);
@@ -61,6 +66,10 @@ public class DerivedData {
     }
 
     private ArrayList<WheelType> getOrderedWheels() {
+        Mode mode = state.getMode();
+        if(mode == Mode.list) {
+            return new ArrayList<>(Arrays.asList(WheelType.STRING));
+        }
         String dateTimePatternOld = LocaleUtils.getDateTimePattern(state.getLocale());
         String dateTimePattern = dateTimePatternOld.replaceAll("\\('(.+?)'\\)","\\${$1}")
                 .replaceAll("'.+?'","")
@@ -129,6 +138,9 @@ public class DerivedData {
 
 
     public String getLastDate() {
+        if (state.getMode() == Mode.list) {
+            return state.getSelectedValue();
+        }
         Calendar lastSelectedDate = state.getLastSelectedDate();
         String initialDate = state.getIsoDate();
         if(lastSelectedDate != null) return Utils.dateToIso(lastSelectedDate);

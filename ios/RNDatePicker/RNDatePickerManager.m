@@ -8,7 +8,7 @@
 #import "RNDatePickerManager.h"
 #import <React/RCTLog.h>
 
-#import "RCTConvert.h"
+#import <React/RCTConvert.h>
 
 #import "DatePicker.h"
 
@@ -68,9 +68,66 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *) props
         title = [title isEqualToString:@""] ? nil : title;
         NSString * confirmText = [RCTConvert NSString:[props objectForKey:@"confirmText"]];
         NSString * cancelText = [RCTConvert NSString:[props objectForKey:@"cancelText"]];
-        DatePicker* picker = [[DatePicker alloc] init];
+        UIControl* picker;
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
         UIView * alertView = alertController.view;
+
+        NSString *mode = [RCTConvert NSString:[props objectForKey:@"mode"]];
+
+        UIAlertAction *confirmAction;
+
+        if ([mode isEqualToString:@"list"]) {
+            Picker * listPicker = [[Picker alloc] init];
+        
+            NSDate * selectedValue = [RCTConvert NSString:[props objectForKey:@"selectedValue"]];
+            [listPicker setSelectedValue:selectedValue];
+            
+            NSArray<NSString *> * items = [RCTConvert NSArray:[props objectForKey:@"items"]];
+            [listPicker setItems:items];
+     
+            NSString * textColor = [RCTConvert NSString:[props objectForKey:@"textColor"]];
+            if(textColor) [listPicker setTextColorProp:textColor];
+        
+            confirmAction = [UIAlertAction actionWithTitle:confirmText style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                onConfirm(@[@{ @"value": listPicker.selectedValue }]);
+            }];
+   
+            picker = listPicker;
+        } else {
+            DatePicker *datePicker = [[DatePicker alloc] init];
+
+            NSDate * _Nonnull date = [RCTConvert NSDate:[props objectForKey:@"date"]];
+            [datePicker setDate:date];
+
+            NSDate * minimumDate = [RCTConvert NSDate:[props objectForKey:@"minimumDate"]];
+            if(minimumDate) [datePicker setMinimumDate:minimumDate];
+            
+            NSDate * maximumDate = [RCTConvert NSDate:[props objectForKey:@"maximumDate"]];
+            if(maximumDate) [datePicker setMaximumDate:maximumDate];
+            
+            NSString * textColor = [RCTConvert NSString:[props objectForKey:@"textColor"]];
+            if(textColor) [datePicker setTextColorProp:textColor];
+            
+            UIDatePickerMode mode = [RCTConvert UIDatePickerMode:[props objectForKey:@"mode"]];
+            [datePicker setDatePickerMode:mode];
+            
+            NSLocale * locale = [RCTConvert NSLocale:[props objectForKey:@"locale"]];
+            if(locale) [datePicker setLocale:locale];
+
+            int minuteInterval = [RCTConvert int:[props objectForKey:@"minuteInterval"]];
+            [datePicker setMinuteInterval:minuteInterval];
+
+            NSString * timeZoneProp = [props valueForKey:@"timeZoneOffsetInMinutes"];
+            if(timeZoneProp){
+                [datePicker setTimeZone:[RCTConvert NSTimeZone:timeZoneProp]];
+            }
+
+            confirmAction = [UIAlertAction actionWithTitle:confirmText style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                onConfirm(@[@{ @"timestamp": @(datePicker.date.timeIntervalSince1970 * 1000.0) }]);
+            }];
+
+            picker = datePicker;
+        }
 
         CGRect pickerBounds = picker.bounds;
 
@@ -92,32 +149,6 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *) props
         pickerBounds.origin.y += iPad ? (title ? 20: 5) : (title ? 30 : 10);
         
         [picker setFrame: pickerBounds];
-       
-        NSDate * _Nonnull date = [RCTConvert NSDate:[props objectForKey:@"date"]];
-        [picker setDate:date];
-
-        NSDate * minimumDate = [RCTConvert NSDate:[props objectForKey:@"minimumDate"]];
-        if(minimumDate) [picker setMinimumDate:minimumDate];
-        
-        NSDate * maximumDate = [RCTConvert NSDate:[props objectForKey:@"maximumDate"]];
-        if(maximumDate) [picker setMaximumDate:maximumDate];
-        
-        NSString * textColor = [RCTConvert NSString:[props objectForKey:@"textColor"]];
-        if(textColor) [picker setTextColorProp:textColor];
-        
-        UIDatePickerMode mode = [RCTConvert UIDatePickerMode:[props objectForKey:@"mode"]];
-        [picker setDatePickerMode:mode];
-        
-        NSLocale * locale = [RCTConvert NSLocale:[props objectForKey:@"locale"]];
-        if(locale) [picker setLocale:locale];
-
-        int minuteInterval = [RCTConvert int:[props objectForKey:@"minuteInterval"]];
-        [picker setMinuteInterval:minuteInterval];
-
-        NSString * timeZoneProp = [props valueForKey:@"timeZoneOffsetInMinutes"];
-        if(timeZoneProp){
-            [picker setTimeZone:[RCTConvert NSTimeZone:timeZoneProp]];
-        }
 
         if(@available(iOS 13, *)) {
             NSString * _Nonnull theme = [RCTConvert NSString:[props objectForKey:@"theme"]];
@@ -132,9 +163,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *) props
         
         [alertView addSubview:picker];
         
-        UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmText style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            onConfirm(@[@{ @"timestamp": @(picker.date.timeIntervalSince1970 * 1000.0) }]);
-        }];
+        
         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
             onCancel(@[]);
         }];

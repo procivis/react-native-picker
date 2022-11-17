@@ -77,6 +77,17 @@
             android:contentDescription="@string/ampm_description"
             android:focusable="true"
             android:focusableInTouchMode="true" />
+
+        <com.henninghall.date_picker.pickers.AndroidNative
+            android:id="@+id/string"
+            style="@style/android_native"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/month_description"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:tag="month"
+            android:theme="@style/android_native_theme" />
     </LinearLayout>
 
 </LinearLayout>

@@ -8,9 +8,11 @@ import android.widget.RelativeLayout;
 import com.facebook.react.bridge.Dynamic;
 import com.henninghall.date_picker.props.DividerHeightProp;
 import com.henninghall.date_picker.props.Is24hourSourceProp;
+import com.henninghall.date_picker.props.ItemsProp;
 import com.henninghall.date_picker.props.MaximumDateProp;
 import com.henninghall.date_picker.props.MinimumDateProp;
 import com.henninghall.date_picker.props.MinuteIntervalProp;
+import com.henninghall.date_picker.props.SelectedValueProp;
 import com.henninghall.date_picker.props.UtcProp;
 import com.henninghall.date_picker.props.VariantProp;
 import com.henninghall.date_picker.props.DateProp;
@@ -67,7 +69,7 @@ public class PickerView extends RelativeLayout {
             uiManager.updateDividerHeight();
         }
 
-        if (didUpdate(ModeProp.name, LocaleProp.name, VariantProp.name, Is24hourSourceProp.name)) {
+        if (didUpdate(ModeProp.name, LocaleProp.name, VariantProp.name, Is24hourSourceProp.name, ItemsProp.name)) {
             uiManager.updateWheelOrder();
         }
 
@@ -77,7 +79,7 @@ public class PickerView extends RelativeLayout {
 
         if (didUpdate(DateProp.name, HeightProp.name, LocaleProp.name,
                 MaximumDateProp.name, MinimumDateProp.name, MinuteIntervalProp.name, ModeProp.name,
-                UtcProp.name, VariantProp.name
+                UtcProp.name, VariantProp.name, SelectedValueProp.name, ItemsProp.name
         )) {
             uiManager.updateDisplayValues();
         }
@@ -86,7 +88,7 @@ public class PickerView extends RelativeLayout {
             Accessibility.setLocale(state.getLocale());
         }
 
-        uiManager.setWheelsToDate();
+        uiManager.setWheelsValues();
 
         updatedProps = new ArrayList<>();
     }

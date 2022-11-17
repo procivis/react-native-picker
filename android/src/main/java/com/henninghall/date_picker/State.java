@@ -6,6 +6,8 @@ import com.henninghall.date_picker.models.Mode;
 import com.henninghall.date_picker.models.Variant;
 import com.henninghall.date_picker.props.DividerHeightProp;
 import com.henninghall.date_picker.props.Is24hourSourceProp;
+import com.henninghall.date_picker.props.ItemsProp;
+import com.henninghall.date_picker.props.SelectedValueProp;
 import com.henninghall.date_picker.props.VariantProp;
 import com.henninghall.date_picker.props.DateProp;
 import com.henninghall.date_picker.props.FadeToColorProp;
@@ -19,6 +21,7 @@ import com.henninghall.date_picker.props.Prop;
 import com.henninghall.date_picker.props.TextColorProp;
 import com.henninghall.date_picker.props.UtcProp;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
@@ -27,7 +30,10 @@ import java.util.TimeZone;
 public class State {
 
     private Calendar lastSelectedDate = null;
+    private String selectedValue = null;
     private final DateProp dateProp = new DateProp();
+    private final SelectedValueProp selectedValueProp = new SelectedValueProp();
+    private final ItemsProp itemsProp = new ItemsProp();
     private final ModeProp modeProp = new ModeProp();
     private final LocaleProp localeProp = new LocaleProp();
     private final FadeToColorProp fadeToColorProp = new FadeToColorProp();
@@ -43,6 +49,8 @@ public class State {
 
     private final HashMap props = new HashMap<String, Prop>() {{
         put(DateProp.name, dateProp);
+        put(SelectedValueProp.name, selectedValueProp);
+        put(ItemsProp.name, itemsProp);
         put(ModeProp.name, modeProp);
         put(LocaleProp.name, localeProp);
         put(FadeToColorProp.name, fadeToColorProp);
@@ -69,6 +77,8 @@ public class State {
     void setProp(String propName, Dynamic value) {
         getProp(propName).setValue(value);
     }
+
+    public ArrayList<String> getItems() { return itemsProp.getValue(); }
 
     public Mode getMode() {
         return (Mode) modeProp.getValue();
@@ -139,5 +149,16 @@ public class State {
 
     public void setLastSelectedDate(Calendar date) {
         lastSelectedDate = date;
+    }
+
+    public String getSelectedValue() {
+        if (selectedValue != null) {
+            return selectedValue;
+        }
+        return selectedValueProp.getValue();
+    }
+
+    public void setSelectedValue(String value) {
+        selectedValue = value;
     }
 }

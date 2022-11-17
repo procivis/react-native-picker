@@ -25,7 +25,7 @@ class DatePickerAndroid extends React.PureComponent {
       if (props.open && isClosed) {
         NativeModules.RNDatePicker.openPicker(
           props,
-          this._onConfirm,
+          props.mode === 'list' ? this._onConfirmValue : this._onConfirmDate,
           this.props.onCancel
         )
       }
@@ -52,10 +52,15 @@ class DatePickerAndroid extends React.PureComponent {
   }
 
   _onChange = (e) => {
-    const jsDate = this._fromIsoWithTimeZoneOffset(e.nativeEvent.date)
-    this.props.onDateChange && this.props.onDateChange(jsDate)
-    if (this.props.onDateStringChange) {
-      this.props.onDateStringChange(e.nativeEvent.dateString)
+    if (this.props.onDateChange && e.nativeEvent.date) {
+      const jsDate = this._fromIsoWithTimeZoneOffset(e.nativeEvent.date)
+      this.props.onDateChange(jsDate)
+      if (this.props.onDateStringChange) {
+        this.props.onDateStringChange(e.nativeEvent.dateString)
+      }
+    } else if (this.props.onValueChange && e.nativeEvent.value) {
+      const value = e.nativeEvent.value
+      this.props.onDateChange(value)
     }
   }
 
@@ -67,7 +72,9 @@ class DatePickerAndroid extends React.PureComponent {
     this.props.minimumDate &&
     this._toIsoWithTimeZoneOffset(this.props.minimumDate)
 
-  _date = () => this._toIsoWithTimeZoneOffset(this.props.date)
+  _date = () =>
+    this.props.date &&
+    this._toIsoWithTimeZoneOffset(this.props.date)
 
   _fromIsoWithTimeZoneOffset = (timestamp) => {
     const date = new Date(timestamp)
@@ -76,14 +83,19 @@ class DatePickerAndroid extends React.PureComponent {
   }
 
   _toIsoWithTimeZoneOffset = (date) => {
+    console.log(date)
     if (this.props.timeZoneOffsetInMinutes === undefined)
       return date.toISOString()
 
     return addMinutes(date, this.props.timeZoneOffsetInMinutes).toISOString()
   }
 
-  _onConfirm = (isoDate) => {
+  _onConfirmDate = (isoDate) => {
     this.props.onConfirm(this._fromIsoWithTimeZoneOffset(isoDate))
+  }
+
+  _onConfirmValue = (value) => {
+    this.props.onConfirm(value)
   }
 }
 

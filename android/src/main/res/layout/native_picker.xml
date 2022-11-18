@@ -87,7 +87,7 @@
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:tag="month"
-            android:theme="@style/android_native_theme" />
+            android:theme="@style/DatePickerTheme" />
     </LinearLayout>
 
 </LinearLayout>

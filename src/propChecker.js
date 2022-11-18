@@ -10,15 +10,20 @@ class PropCheck {
   validate = (props) => {
     if (this.isInvalid(props)) {
       throw new Error(
-        `${this.errorText} Check usage of react-native-date-picker.`
+        `${this.errorText} Check usage of react-native-picker.`
       )
     }
   }
 }
 
 const dateCheck = new PropCheck(
-  (props) => props && !(props.date instanceof Date),
+  (props) => props && props.mode !== 'list' && !(props.date instanceof Date),
   'Invalid or missing Date prop. Must be a Date object.'
+)
+
+const itemsCheck = new PropCheck(
+  (props) => props && props.mode === 'list' && !(Array.isArray(props.items)),
+  'Invalid or missing items prop. Must be an array of strings.'
 )
 
 const widthCheck = new PropCheck(
@@ -41,8 +46,8 @@ const heightCheck = new PropCheck(
 
 const modeCheck = new PropCheck(
   (props) =>
-    props && props.mode && !['datetime', 'date', 'time'].includes(props.mode),
-  "Invalid mode. Valid modes: 'datetime', 'date', 'time'"
+    props && props.mode && !['datetime', 'date', 'time', 'list'].includes(props.mode),
+  "Invalid mode. Valid modes: 'datetime', 'date', 'time', 'list'"
 )
 
 const androidVariantCheck = new PropCheck(
@@ -61,6 +66,7 @@ const themeCheck = new PropCheck(
 
 const checks = [
   dateCheck,
+  itemsCheck,
   widthCheck,
   heightCheck,
   modeCheck,

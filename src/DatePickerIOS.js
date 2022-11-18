@@ -22,9 +22,13 @@ export default class DatePickerIOS extends React.Component {
   }
 
   _onChange = (event) => {
-    const nativeTimeStamp = event.nativeEvent.timestamp
-    this.props.onDateChange &&
+    if (this.props.onDateChange && event.nativeEvent.timestamp) {
+      const nativeTimeStamp = event.nativeEvent.timestamp
       this.props.onDateChange(new Date(nativeTimeStamp))
+    } else if (this.props.onValueChange && event.nativeEvent.value) {
+      const value = event.nativeEvent.value
+      this.props.onValueChange(value)
+    }
   }
 
   _toIosProps = (props) => {
@@ -39,8 +43,12 @@ export default class DatePickerIOS extends React.Component {
     }
   }
 
-  _onConfirm = ({ timestamp }) => {
-    this.props.onConfirm(new Date(timestamp))
+  _onConfirm = ({ timestamp, value }) => {
+    if (timestamp) {
+      this.props.onConfirm(new Date(timestamp))
+    } else if (value) {
+      this.props.onConfirm(value)
+    }
   }
 
   render() {

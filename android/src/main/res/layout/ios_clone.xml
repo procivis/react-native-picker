@@ -145,6 +145,23 @@
             />
             
         <com.henninghall.date_picker.pickers.IosClone
+            android:id="@+id/string"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/month_description"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:tag="month"
+            custom:npv_DividerColor="#cccccc"
+            custom:npv_RespondChangeOnDetached="false"
+            custom:npv_ShownCount="5"
+            custom:npv_TextColorNormal="#aaaaaa"
+            custom:npv_TextColorSelected="#000000"
+            custom:npv_TextSizeNormal="18dp"
+            custom:npv_TextSizeSelected="21dp" />
+
+        <com.henninghall.date_picker.pickers.IosClone
             android:id="@+id/empty_end"
             android:tag="empty_end"
             android:layout_weight="4"

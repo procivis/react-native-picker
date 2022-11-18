@@ -10,6 +10,7 @@ import com.henninghall.date_picker.State;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public abstract class Wheel {
@@ -49,19 +50,29 @@ public abstract class Wheel {
     }
 
     public String getValue() {
-        if(!visible()) return format.format(userSetValue.getTime());
+        if(!visible()) {
+            if (userSetValue == null) {
+                return format.format(new Date());
+            }
+            return format.format(userSetValue.getTime());
+        }
         return getValueAtIndex(getIndex());
     }
 
     public String getPastValue(int subtractIndex) {
-        if(!visible()) return format.format(userSetValue.getTime());
+        if(!visible()) {
+            if (userSetValue == null) {
+                return format.format(new Date());
+            }
+            return format.format(userSetValue.getTime());
+        }
         int size = values.size();
         int pastValueIndex = (getIndex() + size - subtractIndex) % size;
         return getValueAtIndex(pastValueIndex);
     }
 
 
-    private int getIndex() {
+    protected int getIndex() {
         return picker.getValue();
     }
 
@@ -70,6 +81,9 @@ public abstract class Wheel {
     }
 
     public void setValue(Calendar date) {
+        if (date == null) {
+            return;
+        }
         format.setTimeZone(state.getTimeZone());
         this.userSetValue = date;
         int index = getIndexOfDate(date);
@@ -87,7 +101,7 @@ public abstract class Wheel {
         init();
     }
 
-    public String getDisplayValue(){
+    public String getDisplayValue() {
         return toDisplayValue(getValueAtIndex(getIndex()));
     }
 

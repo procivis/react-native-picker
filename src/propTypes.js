@@ -26,11 +26,11 @@ const DateType = PropTypes.instanceOf(Date)
 
 export default {
   ...(Platform === 'android' ? androidPropTypes : iOSPropTypes),
-  date: DateType.isRequired,
+  date: DateType,
   onChange: PropTypes.func,
   minimumDate: DateType,
   maximumDate: DateType,
-  mode: PropTypes.oneOf(['date', 'time', 'datetime']),
+  mode: PropTypes.oneOf(['date', 'time', 'datetime', 'list']),
   minuteInterval: PropTypes.oneOf([1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30]),
   locale: PropTypes.string,
   textColor: PropTypes.string,

@@ -8,7 +8,7 @@
 #import "RNDatePickerManager.h"
 #import <React/RCTLog.h>
 
-#import "RCTConvert.h"
+#import <React/RCTConvert.h>
 
 #import "DatePicker.h"
 
@@ -68,18 +68,83 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *) props
         title = [title isEqualToString:@""] ? nil : title;
         NSString * confirmText = [RCTConvert NSString:[props objectForKey:@"confirmText"]];
         NSString * cancelText = [RCTConvert NSString:[props objectForKey:@"cancelText"]];
-        DatePicker* picker = [[DatePicker alloc] init];
+        UIControl* picker;
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleActionSheet];
         UIView * alertView = alertController.view;
+
+        NSString *mode = [RCTConvert NSString:[props objectForKey:@"mode"]];
+
+        UIAlertAction *confirmAction;
+        
+        int pickerHeight = 216;
+        int titleHeight = [UIFontMetrics.defaultMetrics scaledValueForValue: 15] + 20;
+        int actionHeight = [UIFontMetrics.defaultMetrics scaledValueForValue: 20] + 40;
+        int alertEmptyHeightPx =  (title ? titleHeight : 10) + 2 * actionHeight;
+        NSLayoutConstraint *heightConstraint = [NSLayoutConstraint constraintWithItem:alertView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:(pickerHeight + alertEmptyHeightPx)];
+
+        if ([mode isEqualToString:@"list"]) {
+            Picker * listPicker = [[Picker alloc] init];
+        
+            NSDate * selectedValue = [RCTConvert NSString:[props objectForKey:@"selectedValue"]];
+            [listPicker setSelectedValue:selectedValue];
+            
+            NSArray<NSString *> * items = [RCTConvert NSArray:[props objectForKey:@"items"]];
+            [listPicker setItems:items];
+     
+            NSString * textColor = [RCTConvert NSString:[props objectForKey:@"textColor"]];
+            if(textColor) [listPicker setTextColorProp:textColor];
+        
+            confirmAction = [UIAlertAction actionWithTitle:confirmText style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                onConfirm(@[@{ @"value": listPicker.selectedValue }]);
+            }];
+   
+            picker = listPicker;
+        } else {
+            DatePicker *datePicker = [[DatePicker alloc] init];
+            
+            if (@available(iOS 14.0, *)) {
+                pickerHeight = 0;
+                heightConstraint = [NSLayoutConstraint constraintWithItem:alertView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:datePicker attribute:NSLayoutAttributeHeight multiplier:1 constant:alertEmptyHeightPx];
+            }
+
+            NSDate * _Nonnull date = [RCTConvert NSDate:[props objectForKey:@"date"]];
+            [datePicker setDate:date];
+
+            NSDate * minimumDate = [RCTConvert NSDate:[props objectForKey:@"minimumDate"]];
+            if(minimumDate) [datePicker setMinimumDate:minimumDate];
+            
+            NSDate * maximumDate = [RCTConvert NSDate:[props objectForKey:@"maximumDate"]];
+            if(maximumDate) [datePicker setMaximumDate:maximumDate];
+            
+            NSString * textColor = [RCTConvert NSString:[props objectForKey:@"textColor"]];
+            if(textColor) [datePicker setTextColorProp:textColor];
+            
+            UIDatePickerMode mode = [RCTConvert UIDatePickerMode:[props objectForKey:@"mode"]];
+            [datePicker setDatePickerMode:mode];
+            
+            NSLocale * locale = [RCTConvert NSLocale:[props objectForKey:@"locale"]];
+            if(locale) [datePicker setLocale:locale];
+
+            int minuteInterval = [RCTConvert int:[props objectForKey:@"minuteInterval"]];
+            [datePicker setMinuteInterval:minuteInterval];
+
+            NSString * timeZoneProp = [props valueForKey:@"timeZoneOffsetInMinutes"];
+            if(timeZoneProp){
+                [datePicker setTimeZone:[RCTConvert NSTimeZone:timeZoneProp]];
+            }
+
+            confirmAction = [UIAlertAction actionWithTitle:confirmText style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+                onConfirm(@[@{ @"timestamp": @(datePicker.date.timeIntervalSince1970 * 1000.0) }]);
+            }];
+
+            picker = datePicker;
+        }
 
         CGRect pickerBounds = picker.bounds;
 
         // height
-        double pickerHeight = [self getPickerHeight:alertView];
-        int alertHeightPx = iPad ? (title ? 300 : 260) : (title ? 370 : 340);
-        NSLayoutConstraint *height = [NSLayoutConstraint constraintWithItem:alertView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:alertHeightPx];
-        [alertView addConstraint:height];
-        pickerBounds.size.height = pickerHeight;
+        [alertView addConstraint:heightConstraint];
+        if (pickerHeight) pickerBounds.size.height = pickerHeight;
         
         // width
         double pickerWidth = [self getPickerWidth:alertView];
@@ -89,35 +154,9 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *) props
         pickerBounds.size.width = pickerWidth;
 
         // top padding
-        pickerBounds.origin.y += iPad ? (title ? 20: 5) : (title ? 30 : 10);
+        pickerBounds.origin.y += title ? titleHeight: 10;
         
         [picker setFrame: pickerBounds];
-       
-        NSDate * _Nonnull date = [RCTConvert NSDate:[props objectForKey:@"date"]];
-        [picker setDate:date];
-
-        NSDate * minimumDate = [RCTConvert NSDate:[props objectForKey:@"minimumDate"]];
-        if(minimumDate) [picker setMinimumDate:minimumDate];
-        
-        NSDate * maximumDate = [RCTConvert NSDate:[props objectForKey:@"maximumDate"]];
-        if(maximumDate) [picker setMaximumDate:maximumDate];
-        
-        NSString * textColor = [RCTConvert NSString:[props objectForKey:@"textColor"]];
-        if(textColor) [picker setTextColorProp:textColor];
-        
-        UIDatePickerMode mode = [RCTConvert UIDatePickerMode:[props objectForKey:@"mode"]];
-        [picker setDatePickerMode:mode];
-        
-        NSLocale * locale = [RCTConvert NSLocale:[props objectForKey:@"locale"]];
-        if(locale) [picker setLocale:locale];
-
-        int minuteInterval = [RCTConvert int:[props objectForKey:@"minuteInterval"]];
-        [picker setMinuteInterval:minuteInterval];
-
-        NSString * timeZoneProp = [props valueForKey:@"timeZoneOffsetInMinutes"];
-        if(timeZoneProp){
-            [picker setTimeZone:[RCTConvert NSTimeZone:timeZoneProp]];
-        }
 
         if(@available(iOS 13, *)) {
             NSString * _Nonnull theme = [RCTConvert NSString:[props objectForKey:@"theme"]];
@@ -132,9 +171,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *) props
         
         [alertView addSubview:picker];
         
-        UIAlertAction *confirmAction = [UIAlertAction actionWithTitle:confirmText style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            onConfirm(@[@{ @"timestamp": @(picker.date.timeIntervalSince1970 * 1000.0) }]);
-        }];
+        
         UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:cancelText style:UIAlertActionStyleCancel handler:^(UIAlertAction *action) {
             onCancel(@[]);
         }];
@@ -151,7 +188,7 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *) props
             UIPopoverPresentationController *popPresenter = [alertController popoverPresentationController];
             popPresenter.sourceRect = CGRectMake(CGRectGetMidX(rootBounds), CGRectGetMidY(rootBounds),0,0);
             popPresenter.sourceView = rootViewController.view;
-            popPresenter.presentingViewController.preferredContentSize = CGSizeMake(pickerWidth, alertHeightPx);
+            popPresenter.presentingViewController.preferredContentSize = CGSizeMake(pickerWidth, 320);
             [popPresenter setPermittedArrowDirections: (UIPopoverArrowDirection) 0];
         }
         
@@ -173,11 +210,6 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *) props
     if(iPad) return 320;
     if (isLandscape) return 320;
     return alertView.bounds.size.width - 15;
-}
-
-- (double) getPickerHeight :(UIView *) alertView
-{
-    return 216;
 }
 
 @end

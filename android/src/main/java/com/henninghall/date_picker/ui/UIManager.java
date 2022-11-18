@@ -3,6 +3,7 @@ package com.henninghall.date_picker.ui;
 import android.view.View;
 
 import com.henninghall.date_picker.State;
+import com.henninghall.date_picker.models.WheelType;
 import com.henninghall.date_picker.wheelFunctions.AddOnChangeListener;
 import com.henninghall.date_picker.wheelFunctions.AnimateToDate;
 import com.henninghall.date_picker.wheelFunctions.Refresh;
@@ -10,6 +11,7 @@ import com.henninghall.date_picker.wheelFunctions.SetDate;
 import com.henninghall.date_picker.wheelFunctions.TextColor;
 import com.henninghall.date_picker.wheelFunctions.UpdateVisibility;
 import com.henninghall.date_picker.wheelFunctions.HorizontalPadding;
+import com.henninghall.date_picker.wheels.StringWheel;
 import com.henninghall.date_picker.wheels.Wheel;
 
 import java.text.SimpleDateFormat;
@@ -55,8 +57,17 @@ public class UIManager {
         wheels.applyOnAll(new Refresh());
     }
 
-    public void setWheelsToDate(){
+    public void setWheelsValues(){
+        if (state.getSelectedValue() != null) {
+            state.setSelectedValue(state.getSelectedValue());
+        } else if (state.getItems() != null && state.getItems().toArray().length > 0) {
+            state.setSelectedValue((String) state.getItems().toArray()[0]);
+        }
         wheels.applyOnAll(new SetDate(state.getDate()));
+        if (state.getSelectedValue() != null) {
+            StringWheel stringWheel = (StringWheel) wheels.getWheel(WheelType.STRING);
+            stringWheel.setStringValue(state.getSelectedValue());
+        }
     }
 
     public void scroll(int wheelIndex, int scrollTimes) {
@@ -92,5 +103,9 @@ public class UIManager {
 
     public void updateLastSelectedDate(Calendar date) {
         state.setLastSelectedDate(date);
+    }
+
+    public void updateSelectedValue(String value) {
+        state.setSelectedValue(value);
     }
 }

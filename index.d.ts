@@ -3,9 +3,19 @@ import { ViewProps } from 'react-native'
 
 export interface DatePickerProps extends ViewProps {
   /**
-   * The currently selected date.
+   * The currently selected date for `date`, `time`, and `datetime` mode.
    */
-  date: Date
+  date?: Date
+
+  /**
+   * The currently selected value for `list` mode.
+   */
+  selectedValue?: string
+
+  /**
+   * The list of values for `list` mode.
+   */
+  items?: string[]
 
   /**
    * The date picker locale.
@@ -39,16 +49,25 @@ export interface DatePickerProps extends ViewProps {
   /**
    * The date picker mode.
    */
-  mode?: 'date' | 'time' | 'datetime'
+  mode?: 'date' | 'time' | 'datetime' | 'list'
 
   /**
-   * Date change handler.
+   * Date change handler for `date`, `time`, and `datetime` mode.
    *
    * This is called when the user changes the date or time in the UI.
    * The first and only argument is a Date object representing the new
    * date and time.
    */
   onDateChange?: (date: Date) => void
+
+  /**
+   * Value change handler for `list` mode.
+   *
+   * This is called when the user changes selected item in the UI.
+   * The first argument is a String object representing the new value.
+   * Second argument is index of selected value.
+   */
+  onValueChange?: (value: string, index: number) => void
 
   /**
    * Timezone offset in minutes.
@@ -87,7 +106,7 @@ export interface DatePickerProps extends ViewProps {
   open?: boolean
 
   /** Modal callback invoked when the user presses the confirm button */
-  onConfirm?: (date: Date) => void
+  onConfirm?: (value: Date | string) => void
 
   /** Modal callback invoked when user presses the cancel button or closes the modal by a press outside  */
   onCancel?: () => void

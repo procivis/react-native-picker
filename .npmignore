@@ -5,3 +5,7 @@ example-cocoapods
 examples
 githubREADME.md
 .gitignore
+.idea
+.vscode
+.github
+.npmignore

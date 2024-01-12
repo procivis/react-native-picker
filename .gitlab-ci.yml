@@ -1,0 +1,57 @@
+image: node:18.16.0-alpine
+
+stages:
+  - prepare
+  - test
+  - deploy
+
+variables:
+  YARN_CACHE_FOLDER: "./.yarn/cache"
+  YARN_ENABLE_GLOBAL_CACHE: "false"
+
+
+.yarn-cache: &yarn-cache
+    key:
+      files:
+        - yarn.lock
+    paths:
+      - node_modules/
+      - ${YARN_CACHE_FOLDER}
+    policy: pull
+
+.modules_setup:
+  cache:
+    <<: *yarn-cache
+  before_script:
+    - yarn install --frozen-lockfile --prefer-offline --network-concurrency 1 --immutable
+
+.only_tag:
+  rules:
+    - if: $CI_COMMIT_TAG
+
+build_deps:
+  stage: prepare
+  extends: .modules_setup
+  script:
+    - ''
+  cache:
+    policy: pull-push
+
+tests:
+  stage: test
+  needs: [build_deps]
+  extends: .modules_setup
+  script:
+    - yarn test
+
+
+publish-npm:
+  stage: deploy
+  needs: [tests]
+  script:
+    - npm config set @procivis:registry https://${CI_SERVER_HOST}/api/v4/npm/
+    - npm config set //${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken ${CI_JOB_TOKEN}
+    - npm publish --verbose --access restricted --tag stable
+  extends:
+    - .modules_setup
+    - .only_tag

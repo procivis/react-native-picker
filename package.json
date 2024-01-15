@@ -1,6 +1,6 @@
 {
   "name": "@procivis/react-native-picker",
-  "version": "5.0.2",
+  "version": "5.0.3",
   "description": "A native picker for React Native. In-modal or inlined. Supports Android and iOS.",
   "main": "src/index.js",
   "typings": "index.d.ts",

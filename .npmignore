@@ -8,4 +8,10 @@ githubREADME.md
 .idea
 .vscode
 .github
+.yarn
 .npmignore
+prettier.config.js
+.watchmanconfig
+babel.config.js
+.gitlab-ci.yml
+README.md

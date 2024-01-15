@@ -320,3 +320,26 @@ React Native Date Picker is a cross platform component for iOS and Android. It u
 If you like this package, consider giving it a github star ⭐
 
 Also, PR's are welcome!
+
+
+## NPM package release management
+
+> **_NOTE:_**  Git working directory should be clean (haven't uncommitted changes)
+
+Provide new package version with (Select from list)
+```shell
+npm version <newversion> [major | minor | patch | premajor | preminor | prepatch | prerelease | from-git]
+```
+
+* Provide version from git
+```shell
+npm version patch
+# Response might be like: v0.2.2
+```
+
+> **_NOTE:_**  _New commit will be created and tagged automatically_
+
+* Publish package to registry
+```shell
+git push origin v0.2.2
+```

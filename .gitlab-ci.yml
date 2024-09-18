@@ -3,7 +3,7 @@ image: node:18.16.0-alpine
 stages:
   - prepare
   - test
-  - deploy
+  - publish
 
 variables:
   YARN_CACHE_FOLDER: "./.yarn/cache"
@@ -29,6 +29,11 @@ variables:
   rules:
     - if: $CI_COMMIT_TAG
 
+.only_manual_tag:
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: manual
+
 build_deps:
   stage: prepare
   extends: .modules_setup
@@ -45,13 +50,23 @@ tests:
     - yarn test
 
 
-publish-npm:
-  stage: deploy
+publish:npm:private:
+  stage: publish
   needs: [tests]
   script:
-    - npm config set @procivis:registry https://${CI_SERVER_HOST}/api/v4/npm/
+    - npm config set @procivis:registry https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/
     - npm config set //${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/packages/npm/:_authToken ${CI_JOB_TOKEN}
     - npm publish --verbose --access restricted --tag stable
   extends:
     - .modules_setup
     - .only_tag
+
+publish:npm:public:
+  stage: publish
+  needs: [build_deps]
+  script:
+    - npm config set //registry.npmjs.org/:_authToken ${NPMJS_TOKEN}
+    - npm publish --verbose --access public 
+  extends:
+    - .modules_setup
+    - .only_manual_tag

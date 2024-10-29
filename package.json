@@ -10,7 +10,8 @@
     "test": "jest src"
   },
   "license": "MIT",
-  "homepage": "https://gitlab.procivis.ch/procivis/components/react-native-picker",
+  "repository": "https://github.com/procivis/react-native-picker",
+  "homepage": "https://procivis.ch",
   "keywords": [
     "datepicker",
     "date-picker",

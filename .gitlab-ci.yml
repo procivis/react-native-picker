@@ -1,15 +1,17 @@
-image: node:18.16.0-alpine
+image: node:18.17.0-alpine
 
 stages:
   - prepare
   - test
   - publish
   - github
+  - sync_with_jira
 
 include:
   - project: "procivis/one/one-operations"
     file:
       - "gitlab/github.gitlab-ci.yml"
+      - "gitlab/ci-tools.gitlab-ci.yml"
 
 variables:
   YARN_CACHE_FOLDER: "./.yarn/cache"
@@ -72,17 +74,18 @@ publish:npm:public:
   needs: [build_deps]
   script:
     - npm config set //registry.npmjs.org/:_authToken ${NPMJS_TOKEN}
-    - npm publish --verbose --access public 
+    - npm publish --verbose --access public
   extends:
     - .modules_setup
     - .only_manual_tag
 
 github:push:
+  stage: github
   extends:
-    - .github:push
+    - .ci-tool:open_source_release
 
-github:release:
+
+set_jira_version:
+  stage: sync_with_jira
   extends:
-    - .github:release
-  needs:
-    - job: github:push
+    - .ci-tool:set_jira_version
